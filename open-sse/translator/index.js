@@ -150,7 +150,9 @@ function fixOrphanedToolMessages(body) {
   // Mutate in-place to preserve array reference (SSE handlers may hold references)
   body.messages.length = 0;
   for (const msg of restructured) body.messages.push(msg);
-  if (removed > 0) console.log(`[TRANSLATOR] Removed ${removed} orphaned tool messages (no matching assistant)`);
+  if (removed > 0 || restructured.length !== nonToolMessages.length) {
+    console.log(`[TRANSLATOR] Restructured: ${nonToolMessages.length}→${restructured.length} msgs, ${removed} orphaned tools, stripped calls from ${restructured.filter(m=>m.role==='assistant'&&m.tool_calls?.length).length} assistants`);
+  }
 }
 
 // Translate request: source -> openai -> target
