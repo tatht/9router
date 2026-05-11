@@ -240,6 +240,34 @@ export function createResponsesApiTransformStream(logger = null) {
   };
 
   return new TransformStream({
+    start(controller) {
+      // Emit response.created immediately so client knows connection is alive
+      emit(controller, "response.created", {
+        type: "response.created",
+        response: {
+          id: state.responseId,
+          object: "response",
+          created_at: state.created,
+          status: "in_progress",
+          background: false,
+          error: null,
+          output: []
+        }
+      });
+      emit(controller, "response.in_progress", {
+        type: "response.in_progress",
+        response: {
+          id: state.responseId,
+          object: "response",
+          created_at: state.created,
+          status: "in_progress",
+          background: false,
+          error: null,
+          output: []
+        }
+      });
+      state.started = true;
+    },
     transform(chunk, controller) {
       const text = new TextDecoder().decode(chunk);
       logger?.logInput(text.trim());
@@ -270,7 +298,7 @@ export function createResponsesApiTransformStream(logger = null) {
         const idx = choice.index || 0;
         const delta = choice.delta || {};
 
-        // Emit initial events
+        // Emit initial events (only if not already emitted in start())
         if (!state.started) {
           state.started = true;
           state.responseId = parsed.id ? `resp_${parsed.id}` : state.responseId;
