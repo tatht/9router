@@ -46,6 +46,9 @@ export async function handleChat(request, clientRawRequest = null) {
     log.debug("FORMAT", `Responses API converted: [${msgRoles}]`);
   }
 
+  // Log key request params for debugging
+  log.debug("PARAMS", `max_tokens=${body.max_tokens} max_output_tokens=${body.max_output_tokens} temperature=${body.temperature} top_p=${body.top_p} stream=${body.stream} tools=${body.tools?.length||0} reasoning_effort=${body.reasoning_effort||'none'}`);
+
   // Build clientRawRequest for logging (if not provided)
   if (!clientRawRequest) {
     const url = new URL(request.url);
